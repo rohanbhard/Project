@@ -1,0 +1,483 @@
+SOURCE CODE
+/* This is our project program and the aim of the program is
+to replicate an atm system   */
+
+//Header files:
+
+#include<fstream.h>
+#include<conio.h>
+#include<stdio.h>
+#include<graphics.h>
+#include<dos.h>
+#include<string.h>
+#include<process.h>
+
+//Global variables:
+int n;
+long double grandbal=2500000,cashlim=50000,newlim;         //Global variables
+char uid[20]={'a','d','m','i','n','\0'};
+char pwd[20]={'a','d','m','i','n','\0'};
+//Global class definition
+class bank
+{
+	char name[25];
+	char acno[15];
+	char pinno[5];
+	double bamt;
+	public:
+		void getbank();
+		void putbank();
+		void deposit(double);
+		void withdraw(double);
+		char* access();
+		char* retpinno();
+		void changename(char[]);
+		void changeacno(char[]);
+		void changepinno(char[]);
+}b[15];
+void loading();
+//Member function to accept values
+void bank::getbank()
+{
+	cout<<"\nEnter your name"<<endl;
+	gets(name);
+	cout<<"\nEnter your 10-digit account number"<<endl;
+	gets(acno);
+	cout<<"Enter the ATM pin number"<<endl;
+	gets(pinno);
+	cout<<"\nEnter your balance amount"<<endl;
+	cin>>bamt;
+
+}
+//Member function to display values
+void bank::putbank()
+{
+	int x=170,i,gdriver=DETECT,gmode;
+	initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+	outtextxy(15,15," ");
+	cout<<"\nName is\n";
+	puts(name);
+	cout<<"\nYour account number is"<<endl;
+	cout<<acno;
+	cout<<"\nYour ATM pin number is"<<endl;
+	cout<<pinno;
+	cout<<"\nThe balance amount is"<<endl;
+	cout<<bamt;
+}
+//Member function to carry out deposit
+void bank::deposit(double amt)
+{
+	bamt+=amt;
+}
+//Member function to carry out withdrawal
+void bank::withdraw(double amt)
+{
+	if((amt<=bamt)&&(amt<=cashlim))
+	{
+		bamt-=amt;
+		grandbal-=amt;
+		cout<<"\n\n\n\n\n\n\n\n\n\n\t\tYOUR TRANSACTION IS BEING PROCESSED...";
+		delay(10000);
+		cout<<"\n\n\n\n\n\n\n\n\t\t\tYOUR TRANSACTION IS COMPLETE";
+		cout<<"\n\n\t\t\t\tDON'T FORGET TO COLLECT YOUR CASH!";
+		delay(5000);
+	}
+	else
+	{
+		cout<<"\n\n\n\nSorry.The amount you entered is greater than your balance or the cash limit. Your transaction cannot be carried out";
+		delay(5000);
+	}
+}
+//Member function to return account number
+char* bank::access()
+{
+	return acno;
+}
+//Member function to return pin number
+char* bank::retpinno()
+{
+	return pinno;
+}
+//Member function to change name
+void bank::changename(char newname[25])
+{
+	strcpy(name,newname);
+}
+//Member function to change account number
+void bank::changeacno(char newacno[])
+{
+	strcpy(acno,newacno);
+}
+//Member function to change pin number
+void bank::changepinno(char newpinno[])
+{
+	strcpy(pinno,newpinno);
+}
+
+//Function to display loading bar
+void loading()
+{
+	clrscr();
+	int x=170,i,gdriver=DETECT,gmode;
+	initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+	setbkcolor(BLUE);
+	setcolor(RED);
+	settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+	outtextxy(170,180,"LOADING,PLEASE WAIT");
+	for(i=0;i<300;++i)
+	{
+		delay(5);
+		line(x,200,x,220);
+		x++;
+	}
+	settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+	outtextxy(190,250,"LOADING COMPLETE");
+	settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+	outtextxy(140,275,"PRESS ENTER TO CONTINUE");
+	getch();
+	closegraph();
+}
+
+//Function to explain the contents of the program
+void help()
+{
+		loading();
+		cout<<"\nINSTRUCTIONS:";
+		cout<<"\nIf you select Customer, you will be asked to type your 4-digit ATM pin number.";
+		cout<<" If that is done successfully, you will encounter a menu showing you the various options you have as a customer.";
+		cout<<" If you select Balance Enquiry, it will display all your details by calling the putbank() function.";
+		cout<<" If you select Withdrawal it will allow you to withdraw an amount less than Rs.50000 using the withdraw() function.";
+		cout<<" If you select Change Settings, it will display another menu asking whether to change the name, account number, or pin number.";
+		cout<<" Corresponding choices will call the corresponding functions and your details can be changed.";
+		cout<<" If you select Exit, you will reach the startup page again.";
+
+		cout<<"\n\nNow, if you select Bank Official you will be asked the user id and password.";
+		cout<<" On entering these two correctly, you will encounter a menu showing you the various options.";
+		cout<<" If you select Add account holders, it helps you add new account holders to the list by calling the getbank() function.";
+		cout<<" If you select change user id and password, you can change your id and password.";
+		cout<<" If you select deposit cash in machine, it allows you to increase the grand balance of the ATM machine.";
+		cout<<" If you select Display present cash status, it shows the remaining amount of money in the ATM.";
+		cout<<" If you select change cash limit, it allows you to change the limit regarding the maximum amount of money that can be withdrawn.";
+		cout<<" If you select Exit, you will come back to the startup page.";
+
+		cout<<"\n\nIf you select EXIT, you will come out of the program.";
+
+		return;
+
+}
+
+//Function to caary out the operations for a customer
+void customer()
+{
+	double amt;
+	char newname[25];
+	char newacno[15],ac[15];
+	char pin[5],newpinno[5];;
+
+	int j,ch3,flag=0,flag2=0,ch4,pos,pos2;
+	ifstream fin("atminfo.dat",ios::binary);
+	ofstream fout1("atminfo.dat",ios::binary||ios::app);
+
+	again4:
+	cout<<"\n\n\t\tENTER YOUR 4 DIGIT ATM PIN NUMBER\n\n\t";
+	for(int q=0;q<4;q++)
+	{
+		pin[q]=getch();
+		cout<<"*";
+	}
+	pin[q]='\0';
+	delay(1000);
+
+	while(fin.read((char*)&b[j],sizeof(bank)))
+	{
+
+
+		if(strcmpi(pin,b[j].retpinno())==0)
+		{
+			flag=1;
+			pos=j;
+
+			again5:
+			loading();
+			int x=170,i,gdriver=DETECT,gmode;
+			initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+			setbkcolor(RED);
+			setcolor(BLUE);
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(160,50,"WELCOME!!!");
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(100,80,"SELECT WHAT YOU WANT TO DO:");
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(5,130,"1.Balance Enquiry");
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(350,130,"2.Cash Withdrawal");
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(5,160,"3.Change Settings");
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(350,160,"4.Exit");
+			settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+			outtextxy(50,220,"ENTER YOUR CHOICE");
+			cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\t\t";
+			cin>>ch3;
+			switch(ch3)
+			{
+				case 1: loading();
+					b[j].putbank();
+					delay(10000);
+					goto again5;
+				case 2: loading();
+					again9:
+					clrscr();
+					x=170,i,gdriver=DETECT,gmode;
+					initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+					settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+					outtextxy(50,50,"Enter the amount to be withdrawn");
+					cout<<"\n\n\n\n\n\n\t\t";
+					cin>>amt;
+					long t1=amt/100;
+					long t2=t1*100;
+					if((amt-t2)!=0)
+					{
+						cout<<"\n\nPlease enter an amount in multiples of 100";
+						delay(5000);
+						goto again9;
+					}
+					clrscr();
+					b[j].withdraw(amt);
+					fout1.write((char*)&b[j],sizeof(bank));
+
+					goto again5;
+
+				case 3: loading();
+					clrscr();
+					again6:
+					x=170,i,gdriver=DETECT,gmode;
+					initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+					settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+					outtextxy(50,50,"SELECT WHAT YOU WANT TO CHANGE");
+					settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+					outtextxy(75,120,"1.Name");
+					settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+					outtextxy(75,140,"2.Account Number");
+					settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+					outtextxy(75,160,"3.Pin number");
+					settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+					outtextxy(75,180,"4.Exit");
+					cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\t";
+					cin>>ch4;
+					switch(ch4)
+					{
+						case 1: x=170,i,gdriver=DETECT,gmode;
+							initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+							settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+							outtextxy(125,75,"Enter your new name");
+							cout<<"\n\n\n\n\n\n\n\n\n\t\t";
+							gets(newname);
+							b[j].changename(newname);
+							fout1.write((char*)&b[j],sizeof(bank));
+							loading();
+							goto again6;
+						case 2: x=170,i,gdriver=DETECT,gmode;
+							initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+							settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+							outtextxy(125,75,"Enter your new account number");
+							cout<<"\n\n\n\n\n\n\n\n\n\t\t";
+							gets(newacno);
+							b[j].changeacno(newacno);
+							fout1.write((char*)&b[j],sizeof(bank));
+							loading();
+							goto again6;
+						case 3: x=170,i,gdriver=DETECT,gmode;
+							initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+							settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+							outtextxy(125,75,"Enter your new ATM pin number");
+							cout<<"\n\n\n\n\n\n\n\n\n\t\t";
+							for(int s=0;s<4;s++)
+							{
+								newpinno[s]=getch();
+								cout<<"*";
+							}
+							newpinno[s]='\0';
+
+							b[j].changepinno(newpinno);
+							fout1.write((char*)&b[j],sizeof(bank));
+							loading();
+							goto again6;
+						case 4: goto again5;
+						default:x=170,i,gdriver=DETECT,gmode;
+							initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+							settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+							outtextxy(125,75,"Sorry, wrong choice. Go again ");
+							goto again6;
+					}
+
+				case 4: return;
+				default: cout<<"Sorry, Wrong choice. Go again";
+					 delay(4000);
+					 goto again5;
+			}
+		}
+	}
+	fin.close();
+	fout1.close();
+	if(flag==0)
+	{
+		clrscr();
+		cout<<"\n\n\n\n\t\t!!!SORRY, Pin number doesn't exist...!!!";
+		delay(3500);
+		return;
+	}
+}
+
+//Member function to carry out operations for a bank official
+void official()
+{
+	int i,ch2;
+	long double dep;
+	char uide[20],pwde[20],nuid[20],npwd[20];
+	again2:
+	cout<<"\n\n\n\n\t\t\tENTER USER ID\n\t\t\t";
+	gets(uide);
+	cout<<"\n\n\t\t\tENTER PASSWORD\n\t\t\t";
+	for(int h=0;h<strlen(pwd);h++)
+	{
+		pwde[h]=getch();
+		cout<<"*";
+	}
+	pwde[h]='\0';
+	delay(1000);
+	if((strcmpi(uid,uide)!=0)||(strcmpi(pwd,pwde)!=0))
+	{
+		clrscr();
+		cout<<"\n\n\n\t\tTHE DATA YOU ENTERED IS INVALID.TRY AGAIN";
+		goto again2;
+	}
+	else
+	{
+		loading();
+		again3:
+		ofstream fout("atminfo.dat",ios::binary||ios::app);
+		clrscr();
+		cout<<"\n\n\n\n\tYOUR LOGIN WAS SUCCESSFUL!\n";
+		cout<<"\n\n\n\n\t\tWHAT DO YOU WANT TO DO?\n";
+		cout<<"\n\t\t\t1.Add account holders";
+		cout<<"\n\t\t\t2.Change user id and password";
+		cout<<"\n\t\t\t3.Deposit cash in machine";
+		cout<<"\n\t\t\t4.Display present cash status";
+		cout<<"\n\t\t\t5.Change maximum cash limit";
+		cout<<"\n\t\t\t6.Exit";
+		cout<<"\n\tEnter your choice\n";
+		cin>>ch2;
+		switch(ch2)
+		{
+			case 1: loading();
+				clrscr();
+				cout<<"\nEnter the number of account holders"<<endl;
+				cin>>n;
+				cout<<"Enter the details one by one..."<<endl;
+				for(i=0;i<n;i++)
+				{
+					cout<<"\nEnter the details of the "<<i+1<<"th account holder"<<endl;
+					b[i].getbank();
+					fout.write((char*)&b[i],sizeof(bank));
+
+				}
+				goto again3;
+			case 2: loading();
+				clrscr();
+				cout<<"\n\n\n\t\t\tENTER NEW USER ID\n";
+				gets(nuid);
+				strcpy(uid,nuid);
+				cout<<"\n\n\t\t\tENTER NEW PASSWORD\n";
+				gets(npwd);
+				strcpy(pwd,npwd);
+				goto again3;
+			case 3: loading();
+				clrscr();
+				cout<<"\n\n\n\n\t\tENTER THE AMOUNT YOU WANT TO DEPOSIT\n\t\t";
+				cin>>dep;
+				grandbal+=dep;
+				goto again3;
+			case 4: loading();
+				cout<<"\n\n\n\n\n\n\n\n\n\t\t\tTHE AVAILABLE BALANCE IS\n\t\t\t\tRs."<<grandbal;
+				delay(5000);
+				goto again3;
+			case 5: loading();
+				clrscr();
+				cout<<"\n\n\n\n\t\t\t\tENTER NEW CASH LIMIT\n";
+				cin>>newlim;
+				cashlim=newlim;
+				goto again3;
+			case 6: break;
+			default:loading();
+				clrscr();
+				cout<<"\n\n\n\n\t\t\t\tWrong choice. Go again";
+				goto again3;
+		}
+		fout.close();
+	}
+}
+
+
+//Main function
+void main()
+{
+	clrscr();
+	char ch2;
+	int ch1,j,flag;
+	long acn,ac;
+	double amtt;
+	int x=170,i,gdriver=DETECT,gmode;
+
+	again:
+	ifstream fin("atminfo.dat");
+	fin.read((char*)&b,sizeof(b));
+	fin.close();
+	initgraph(&gdriver, &gmode, "C:\\turboc3\\bgi");
+	settextstyle(DEFAULT_FONT,HORIZ_DIR,2);
+	setbkcolor(BLUE);
+	setcolor(RED);
+	outtextxy(130,50,"WELCOME TO IBIBI BANK!!!");
+	outtextxy(150,170,"SELECT YOUR CATEGORY");
+	outtextxy(170,200,"1.CUSTOMER");
+	outtextxy(170,230,"2.BANK OFFICIAL");
+	outtextxy(170,260,"3.HELP");
+	outtextxy(170,290,"4.EXIT");
+	cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\tENTER YOUR CHOICE\n\t\t";
+	cin>>ch1;
+	if(ch1==1)
+	{
+		loading();
+		clrscr();
+		customer();
+		goto again;
+	}
+	else if(ch1==2)
+	{
+		loading();
+		clrscr();
+		official();
+		goto again;
+	}
+	else if(ch1==3)
+	{
+		help();
+		cout<<"\n\nPress ENTER to continue.";
+		getch();
+		goto again;
+	}
+	else if(ch1==4)
+	{
+		exit(0);
+	}
+	else
+	{
+		clrscr();
+		cout<<"\n\n\n\n\t\tYOU HAVE ENTERED AN INVALID CHOICE";
+		delay(4000);
+		goto again;
+	}
+
+	getch();
+}
+
